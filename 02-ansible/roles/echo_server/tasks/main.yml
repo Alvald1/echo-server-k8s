@@ -46,8 +46,6 @@
   community.docker.docker_container:
     name: "echo-server-{{ item }}"
     image: "{{ image_name }}"
-    env:
-      AUTHOR: "{{ author_name }}"
     ports:
       - "{{ item }}:8000"
     restart_policy: always
