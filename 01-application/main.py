@@ -11,8 +11,8 @@ async def get_host():
 
 @app.get("/ip")
 async def get_ip():
-    # ...реализация будет добавлена позже...
-    pass
+    ip = socket.gethostbyname(socket.gethostname())
+    return {"ip": ip}
 
 
 @app.get("/author")
