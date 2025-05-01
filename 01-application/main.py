@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 import socket
+import os
+from dotenv import load_dotenv
+
 
 app = FastAPI()
 
@@ -17,8 +20,11 @@ async def get_ip():
 
 @app.get("/author")
 async def get_author():
-    # ...реализация будет добавлена позже...
-    pass
+    load_dotenv(override=True)
+    author = os.environ.get("AUTHOR")
+    if not author:
+        author = "unknown"
+    return {"author": author}
 
 if __name__ == "__main__":
     import uvicorn
