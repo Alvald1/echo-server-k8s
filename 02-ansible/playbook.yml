@@ -1,0 +1,8 @@
+- name: Setup echo-server and nginx load balancer
+  hosts: web
+  become: true
+  vars_files:
+    - vault.yml
+  gather_facts: false
+  tasks:
+    - ansible.builtin.ping:
