@@ -10,7 +10,6 @@ FastAPI приложение для получения информации о �
 from fastapi import FastAPI
 import socket
 import os
-from dotenv import load_dotenv
 
 
 app = FastAPI()
@@ -32,7 +31,6 @@ async def get_ip():
 @app.get("/author")
 async def get_author():
     """Возвращает имя автора из переменной окружения AUTHOR (или 'unknown')."""
-    load_dotenv(override=True)
     author = os.environ.get("AUTHOR")
     if not author:
         author = "unknown"

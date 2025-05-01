@@ -46,8 +46,11 @@
   community.docker.docker_container:
     name: "echo-server-{{ item }}"
     image: "{{ image_name }}"
+    pull: true
     ports:
       - "{{ item }}:8000"
+    env:
+      AUTHOR: "{{ author_name }}"
     restart_policy: always
     state: started
   loop: "{{ app_ports }}"

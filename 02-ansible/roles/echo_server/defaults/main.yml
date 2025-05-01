@@ -1,3 +1,4 @@
 docker_username: "alvald1"
 image_name: "alvald1/echo-server:latest"
+author_name: "clou222d"
 app_ports: [8001, 8002, 8003]
