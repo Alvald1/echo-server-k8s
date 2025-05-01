@@ -1,12 +1,12 @@
 from fastapi import FastAPI
+import socket
 
 app = FastAPI()
 
 
 @app.get("/host")
 async def get_host():
-    # ...реализация будет добавлена позже...
-    pass
+    return {"host": socket.gethostname()}
 
 
 @app.get("/ip")
