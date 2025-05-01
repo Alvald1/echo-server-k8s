@@ -26,21 +26,21 @@ python main.py
 ## Сборка Docker-образа
 
 ```bash
-docker build -t <dockerhub-username>/echo-server:latest .
+docker build -t alvald1/echo-server:latest .
 ```
 
 ## Запуск контейнера
 
 ```bash
-docker run -d -p 8000:8000 --env AUTHOR="Ваше Имя" <dockerhub-username>/echo-server:latest
+docker run -d -p 8000:8000 --env AUTHOR="Ваше Имя" alvald1/echo-server:latest
 ```
 
 ## Публикация образа в Docker Hub
 
 ```bash
 docker login
-docker tag <local-image-id> <dockerhub-username>/echo-server:latest
-docker push <dockerhub-username>/echo-server:latest
+docker tag <local-image-id> alvald1/echo-server:latest
+docker push alvald1/echo-server:latest
 ```
 
 ## Пример запросов
