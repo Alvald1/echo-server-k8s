@@ -3,6 +3,5 @@
   become: true
   vars_files:
     - vault.yml
-  gather_facts: false
-  tasks:
-    - ansible.builtin.ping:
+  roles:
+    - echo_server

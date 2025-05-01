@@ -1,0 +1,89 @@
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Add Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Install Docker CE
+  apt:
+    name: docker-ce
+    state: present
+    update_cache: yes
+
+- name: Ensure docker is running
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Log in to private Docker registry
+  community.docker.docker_login:
+    username: "{{ docker_username }}"
+    password: "{{ docker_password }}"
+  become: true
+
+- name: Pull echo-server image
+  community.docker.docker_image:
+    name: "{{ image_name }}"
+    source: pull
+
+- name: Run echo-server containers
+  community.docker.docker_container:
+    name: "echo-server-{{ item }}"
+    image: "{{ image_name }}"
+    env:
+      AUTHOR: "{{ author_name }}"
+    ports:
+      - "{{ item }}:8000"
+    restart_policy: always
+    state: started
+  loop: "{{ app_ports }}"
+
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+
+- name: Configure nginx as load balancer
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/echo-lb
+
+- name: Enable echo-lb site
+  file:
+    src: /etc/nginx/sites-available/echo-lb
+    dest: /etc/nginx/sites-enabled/echo-lb
+    state: link
+    force: true
+
+- name: Remove default nginx config
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Ensure nginx is enabled and started via systemd
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+
+# handlers section for nginx reload
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
