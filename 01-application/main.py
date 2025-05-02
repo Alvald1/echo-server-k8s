@@ -33,6 +33,8 @@ async def get_ip():
 async def get_author():
     """Возвращает имя автора из переменной окружения AUTHOR (или 'unknown')."""
     author = os.environ.get("AUTHOR")
+    if not author:
+        author = 'unknown'
     return {"author": author}
 
 
