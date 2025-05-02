@@ -118,10 +118,12 @@ done | grep -oP '"ip":"\K[0-9.]+' | sort | uniq -c
 ansible-galaxy role install Alvald1.k8s_cluster_role
 ```
 
+  Репозиторий с ролью [k8s_project](https://github.com/Alvald1/kube_project)
+
 1. Заполните `vault.yml` с данными для приватного реестра.
 2. Запустите playbook:
   ```bash
-  ansible-playbook -i inventory.ini playbook.yml --ask-vault-pass
+  ansible-playbook playbook.yml --ask-vault-pass
   ```
 
 ---
