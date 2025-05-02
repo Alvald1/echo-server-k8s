@@ -1,0 +1,29 @@
+replicaCount: 3
+
+image:
+  repository: alvald1/echo-server
+  tag: latest
+  pullSecret: regcred
+
+env:
+  AUTHOR: "cloud"
+
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: echo-server.local
+      paths:
+        - path: /ip
+          pathType: Prefix
+        - path: /host
+          pathType: Prefix
+        - path: /author
+          pathType: Prefix
+  tls: []
