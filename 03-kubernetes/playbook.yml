@@ -6,6 +6,8 @@
     - vault.yml
   vars:
     kube_pwd: "/home/{{ ansible_user | default('user') }}/.kube"
+  roles:
+    - role: Alvald1.k8s_cluster_role
   tasks:
     - name: Copy echo-server-chart directory to node1
       copy:

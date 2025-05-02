@@ -100,7 +100,7 @@ curl http://localhost:8000/health/live
 
 ## Проверка балансировки через Ingress
 
-Если настроен Ingress и DNS/hosts для `echo-server.local` указывает на ingress-контроллер (например, 192.168.62.200):
+Если настроен Ingress и DNS/hosts для `echo-server.local` указывает на VIP (например, 192.168.62.200):
 
 ```bash
 for i in {1..100}; do
@@ -112,17 +112,22 @@ done | grep -oP '"ip":"\K[0-9.]+' | sort | uniq -c
 
 ## Использование Ansible для деплоя
 
+**Перед запуском playbook необходимо установить роль:**
+
+```bash
+ansible-galaxy role install Alvald1.k8s_cluster_role
+```
+
 1. Заполните `vault.yml` с данными для приватного реестра.
 2. Запустите playbook:
-   ```bash
-   ansible-playbook -i inventory.ini playbook.yml --ask-vault-pass
-   ```
+  ```bash
+  ansible-playbook -i inventory.ini playbook.yml --ask-vault-pass
+  ```
 
 ---
 
 ## Примечания
 
-- Для работы Ingress необходим установленный ingress-nginx-контроллер.
 - Все параметры можно переопределять через `values.yaml` Helm-чарта.
 - Для доступа к приватному реестру используйте корректные креденшелы.
 
