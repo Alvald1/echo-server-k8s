@@ -1,19 +1,67 @@
 ---
+- name: Get current time on control host
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Get current date
+      ansible.builtin.command: date "+%Y-%m-%d %H:%M:%S"
+      register: current_time
+
+    - name: Set fact for current time
+      ansible.builtin.set_fact:
+        synced_time: "{{ current_time.stdout }}"
+
+- name: Set time on all nodes
+  hosts: all
+  become: true
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Set system time to match control host
+      ansible.builtin.command: date -s "{{ hostvars['localhost']['synced_time'] }}"
+
+- name: Find reachable control-panel node
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Check which control-panel nodes are reachable
+      ansible.builtin.ping:
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['control_panel'] }}"
+      register: ping_results
+      ignore_unreachable: yes
+
+    - name: Set active_control_panel to first reachable node
+      set_fact:
+        active_control_panel: "{{ ping_results.results | selectattr('unreachable', 'undefined') | selectattr('failed', 'defined') | selectattr('failed', 'equalto', false) | map(attribute='item') | list | first }}"
+
+    - name: Save active_control_panel to file
+      copy:
+        dest: /tmp/active_control_panel.json
+        content: "{{ {'active_control_panel': active_control_panel} | to_nice_json }}"
+
+
 - name: Deploy echo-server Helm chart
-  hosts: node1
+  hosts: all
   become: yes
   vars_files:
     - vault.yml
   vars:
     kube_pwd: "/home/{{ ansible_user | default('user') }}/.kube"
+  pre_tasks:
+    - name: Load active_control_panel from file
+      include_vars:
+        file: /tmp/active_control_panel.json
   roles:
-    - role: Alvald1.k8s_cluster_role
+    - role: Alvald1.k8s_cluster_role      
   tasks:
-    - name: Copy echo-server-chart directory to node1
+    - name: Copy echo-server-chart directory
       copy:
         src: ./echo-server-chart/
         dest: /tmp/echo-server-chart
         mode: preserve
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
 
     - name: Ensure echo-server namespace exists
       kubernetes.core.k8s:
@@ -22,6 +70,8 @@
         name: echo-server
         state: present
         kubeconfig: "{{ kube_pwd }}/config"
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
 
     - name: Ensure docker-registry secret exists
       kubernetes.core.k8s:
@@ -37,6 +87,8 @@
             .dockerconfigjson: "{{ {'auths': {'https://index.docker.io/v1/': {'username': username, 'password': passwd, 'email': email, 'auth': (username + ':' + passwd)|b64encode }}} | to_nice_json | b64encode }}"  
         kubeconfig: "{{ kube_pwd }}/config"
       no_log: true
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
 
     - name: Label echo-server namespace
       kubernetes.core.k8s:
@@ -49,6 +101,8 @@
               app.kubernetes.io/managed-by: Helm
         state: present
         kubeconfig: "{{ kube_pwd }}/config"
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
 
     - name: Annotate echo-server namespace with release name
       kubernetes.core.k8s:
@@ -62,6 +116,16 @@
               meta.helm.sh/release-namespace: echo-server
         state: present
         kubeconfig: "{{ kube_pwd }}/config"
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
+
+    - name: Ensure helm-diff plugin is installed
+      ansible.builtin.shell: |
+        helm plugin list | grep -q diff || helm plugin install https://github.com/databus23/helm-diff
+      args:
+        executable: /bin/bash
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
 
     - name: Install echo-server Helm chart
       kubernetes.core.helm:
@@ -70,4 +134,9 @@
         release_namespace: echo-server
         state: present
         kubeconfig: "{{ kube_pwd }}/config"
-        
+        values:
+          ingress:
+            enabled: true
+      delegate_to: "{{ active_control_panel }}"
+      run_once: true
+
