@@ -33,9 +33,9 @@ upstream echo_backend {
 
 1. Укажите параметры подключения к хосту в `inventory.ini`.
 2. Задайте переменные в `vault.yml` (например, пароль от Docker Registry).
-3. Установите засисимости
+3. Установите засисимости [репозиторий с ролью](https://github.com/Alvald1/docker_role)
    ```bash
-      ansible-galaxy role install Alvald1.docker_role -p roles -f
+   ansible-galaxy role install Alvald1.docker_role -p roles -f
    ```
 4. Запустите playbook:
    ```bash
