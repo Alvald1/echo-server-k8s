@@ -9,8 +9,6 @@
 
 Также реализованы readiness- и liveness-пробы, проброс переменной окружения, использование приватного Docker Registry и опциональный Ingress.
 
----
-
 ## Структура
 
 - `echo-server.yaml` — raw-манифесты для Namespace, Deployment, Service и Ingress.
@@ -18,6 +16,7 @@
 - `playbook.yml` — Ansible playbook для автоматизированного деплоя Helm-чарта и создания необходимых секретов.
 - `vault.yml` — секреты для доступа к приватному Docker Registry.
 - `inventory.ini`, `ansible.cfg` — пример инвентаря и конфигурации Ansible.
+- `requirements.yml` — зависимости Ansible-ролей.
 
 ---
 
@@ -114,11 +113,11 @@ done | grep -oP '"ip":"\K[0-9.]+' | sort | uniq -c
 
 **Перед запуском playbook необходимо установить роль:**
 
-```bash
-ansible-galaxy role install Alvald1.k8s_cluster_role
-```
+Установите зависимости [репозиторий с ролью](https://github.com/Alvald1/k8s_cluster_role)
+   ```bash
+   ansible-galaxy install -r requirements.yml -f
+   ```
 
-  Репозиторий с ролью [k8s_project](https://github.com/Alvald1/kube_project)
 
 1. Заполните `vault.yml` с данными для приватного реестра.
 2. Запустите playbook:
