@@ -1,41 +1,7 @@
-- name: Install required packages
-  apt:
-    name:
-      - apt-transport-https
-      - ca-certificates
-      - curl
-      - gnupg
-      - lsb-release
-    state: present
-    update_cache: yes
-
-- name: Add Docker GPG key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-- name: Add Docker repository
-  apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-    state: present
-
-- name: Install Docker CE
-  apt:
-    name: docker-ce
-    state: present
-    update_cache: yes
-
-- name: Ensure docker is running
-  service:
-    name: docker
-    state: started
-    enabled: true
-
 - name: Log in to private Docker registry
   community.docker.docker_login:
     username: "{{ docker_username }}"
     password: "{{ docker_password }}"
-  become: true
 
 - name: Pull echo-server image
   community.docker.docker_image:

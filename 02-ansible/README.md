@@ -37,5 +37,10 @@ upstream echo_backend {
    ```bash
    ansible-playbook playbook.yml --ask-vault-pass 
    ```
-
+4. Тестирование
+   ```bash
+    curl 192.168.62.128/ip
+    curl 192.168.62.128/author
+    curl 192.168.62.128/host
+   ```
 Все параметры и детали настройки описаны в соответствующих файлах роли.

@@ -1,0 +1,54 @@
+- name: Remove conflicting docker-related packages
+  apt:
+    name: "{{ prev_packages }}"
+    state: absent
+    purge: yes
+  ignore_errors: true
+
+- name: Remove docker files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ prev_files }}"
+
+- name: Remove Docker repo from /etc/apt/sources.list if present
+  lineinfile:
+    path: /etc/apt/sources.list
+    regexp: '^deb .+download\.docker\.com'
+    state: absent
+
+- name: Install required packages for Docker repo
+  apt:
+    name: "{{ required_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repo }}"
+    filename: docker
+    state: present
+    update_cache: yes
+
+- name: Install Docker Engine and related packages
+  apt:
+    name: "{{ docker_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Ensure docker is running
+  service:
+    name: docker
+    state: started
+    enabled: true
+
+- name: Ensure docker group exists
+  group:
+    name: docker
+    state: present
+
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user | default('user') }}"
+    groups: docker
+    append: yes
