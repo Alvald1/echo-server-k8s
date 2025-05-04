@@ -8,6 +8,13 @@
 - Запускаются три контейнера echo-server на разных портах.
 - nginx настраивается как балансировщик между этими контейнерами.
 
+## Структура
+
+- `playbook.yml` — основной playbook для деплоя.
+- `requirements.yml` — зависимости Ansible-ролей.
+- `inventory.ini` — пример инвентаря.
+- `ansible.cfg` — конфигурация Ansible.
+
 ## Стратегия балансировки
 
 В конфигурации nginx используется стратегия `round-robin` (по умолчанию):
@@ -33,9 +40,9 @@ upstream echo_backend {
 
 1. Укажите параметры подключения к хосту в `inventory.ini`.
 2. Задайте переменные в `vault.yml` (например, пароль от Docker Registry).
-3. Установите засисимости [репозиторий с ролью](https://github.com/Alvald1/docker_role)
+3. Установите зависимости [репозиторий с ролью](https://github.com/Alvald1/docker_role)
    ```bash
-   ansible-galaxy role install Alvald1.docker_role -p roles -f
+   ansible-galaxy install -r requirements.yml -f
    ```
 4. Запустите playbook:
    ```bash
