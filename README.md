@@ -1,7 +1,3 @@
-# devops_cloudru_camp
-
-Репозиторий содержит практические задания и решения по DevOps для курса CloudRu Camp.
-
 ## Содержание
 
 - [01-application](./01-application/README.md) — FastAPI-приложение echo-server с несколькими эндпоинтами и probes.
